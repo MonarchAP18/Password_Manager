@@ -1,7 +1,7 @@
 from cryptography.fernet import Fernet
 
 
-class Manager:
+class PassManager:
     
     def __init__(self):
         self.key = None
@@ -23,4 +23,23 @@ class Manager:
         
         if initial_values is not None:
             for key, values in initial_values.items():
-                pass 
+                self.add_pass()
+    
+
+    def load_password_f(self,path):
+        self.PassFile = path
+
+        with open(path, 'r') as f:
+            for line in f:
+                site, encrypted = line.split(":")
+                self.PassDict[site] = Fernet(self.key).decrypt(encrypted.encode())
+
+    
+    def add_pass(self, site, password):
+        self.PassDict[site] = password
+
+        if self.password is not None:
+            with open(self.PassFile, 'a+') as f:
+                encrypted = Fernet(self.key).encrypt(password.encode())
+                f.write(site + ":" + encrypted.decode() + "\n")
+
